@@ -1,20 +1,3 @@
-%include "boot.inc"
-section loader vstart=LOADER_BASE_ADDR
-	mov byte [gs:0x10],'2'
-	mov byte [gs:0x11],0xA4
-	mov byte [gs:0x12],' '
-	mov byte [gs:0x13],0xA4
-	mov byte [gs:0x14],'l'
-	mov byte [gs:0x15],0xA4
-	mov byte [gs:0x16],'o'
-	mov byte [gs:0x17],0xA4
-	mov byte [gs:0x18],'a'
-	mov byte [gs:0x19],0xA4
-	mov byte [gs:0x1a],'d'
-	mov byte [gs:0x1b],0xA4
-	mov byte [gs:0x1c],'e'
-	mov byte [gs:0x1d],0xA4
-	mov byte [gs:0x1e],'r'
-	mov byte [gs:0x1f],0xA4
+	%include "boot.inc"
+	section loader vstart=LOADER_BASE_ADDR
 
-	jmp $
