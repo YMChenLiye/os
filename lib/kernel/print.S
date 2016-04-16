@@ -2,6 +2,9 @@ TI_GDT	equ 	0
 RPL0	equ		0
 SELECTOR_VIDEO	equ		(0x0003<<3) + TI_GDT + RPL0
 
+section .data
+put_int_buffer	dq	0				;定义8字节缓冲区用于数字到字符的转换
+
 [bits 32]
 section .text
 ;--------------- put_str --------------------
@@ -153,5 +156,70 @@ put_char:
 	out dx,al
 
 .put_char_done:
+	popad
+	ret
+
+
+;-------------------- 将小端字节序的数字变成对应的ascii后，倒置 -------------
+;输出：栈中参数为待打印的数字
+;输入：在屏幕上打印16进制数字，并不会打印0x，如打印10进制15时，只会直接打印f
+;------------------------------------------------------------------------------
+global put_int
+put_int:
+	pushad
+	mov ebp,esp
+	mov eax,[ebp+4*9]			;call的返回地址4字节加上pushad的8个4字节
+	mov edx,eax
+	mov edi,7					;指定在put_int_buffer中初始的偏移量
+	mov ecx,8					;32位数字中，16进制数字的位数是8个
+	mov ebx,put_int_buffer
+
+;将32位数字按照16进制的形式从低到高逐个处理，共处理8个16进制数字
+.16based_4bits:					;每4位二进制是16进制数字的1位，遍历每一位16进制数字
+	and edx,0x0000000f			;and操作后，edx只有低4位有效
+	cmp edx,9					;数字0~9和a～f需要分别处理成对应的字符
+	jg .is_A2F
+	add edx,'0'
+	jmp .store
+.is_A2F:
+	sub edx,10
+	add edx,'A'
+
+;将每一位数字转换成对应的字符后，按照类似"大端"的顺序存储到缓冲区put_int_buffer
+;高位字符放在低地址，低位字符放在高地址，这样和大端字节序类似
+.store:
+;此时dl中应该是数字对应的字符的ascii码
+	mov [ebx+edi],dl
+	dec edi
+	shr eax,4					;eax每次处理4位，处理完就右移
+	mov edx,eax
+	loop .16based_4bits
+
+;现在put_int_buffer中已全是字符，打印之前把高位连续的字符去掉，比如把字符000123变成123
+.ready_to_print:
+	inc edi						;edi已经被减为-1了，加1使它变成0
+.skip_prefix_0:
+	cmp edi,8					;如果已经比较第9个字符了，表示待打印的字符串全为0
+	je .full0
+;找到连续的0，edi作为非0的最高为字符的偏移
+.go_on_skip:
+	mov cl,[put_int_buffer + edi]
+	inc edi
+	cmp cl,'0'
+	je .skip_prefix_0			;继续判断下一位字符是否为字符0
+	dec edi						;如果不是'0'的话，要把之前减去的再加回来
+	jmp .put_each_num
+
+.full0:
+	mov cl,'0'					;输入全0时，打印一个0
+.put_each_num:
+	push ecx					;此时ecx中为待打印的字符
+	call put_char
+	add esp,4
+	inc edi						;edi指向下一个字符
+	mov cl,[put_int_buffer+edi]
+	cmp edi,8
+	jl .put_each_num
+
 	popad
 	ret
