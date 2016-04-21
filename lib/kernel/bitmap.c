@@ -43,7 +43,7 @@ int bitmap_scan(struct bitmap *btmp,uint32_t cnt){
 		return bit_idx_start;
 	}
 
-	uint32_t bit_left = (btmp->btmp_byte_len * 8 - bit_idx_start); //记录还有多少为可以判断
+	uint32_t bit_left = (btmp->btmp_bytes_len * 8 - bit_idx_start); //记录还有多少为可以判断
 	uint32_t next_bit = bit_idx_start + 1;
 	uint32_t count = 1;
 
@@ -67,7 +67,7 @@ int bitmap_scan(struct bitmap *btmp,uint32_t cnt){
 void bitmap_set(struct bitmap *btmp,uint32_t bit_idx,int8_t value){
 	ASSERT((value == 0) || (value == 1));
 	uint32_t byte_idx = bit_idx / 8;
-	uint32_t byte_odd = bit_idx % 8;
+	uint32_t bit_odd = bit_idx % 8;
 
 	if(value){
 		btmp->bits[byte_idx] |= (BITMAP_MASK << bit_odd);

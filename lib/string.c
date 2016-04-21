@@ -43,7 +43,7 @@ char *strcpy(char *dst_,const char *src_){
 }
 
 //返回字符串长度
-uint32_t strlen(const char *src){
+uint32_t strlen(const char *str){
 	ASSERT(str != NULL);
 	const char *p = str;
 	while(*p++);
@@ -73,7 +73,7 @@ char *strchr(const char *str,const uint8_t ch){
 }
 
 //从后往前查找字符串str中首次出现字符ch的地址
-char *strrchr(const char *src,const uint8_t ch){
+char *strrchr(const char *str,const uint8_t ch){
 	ASSERT(str != NULL);
 	const char *last_char = NULL;
 	//从头到尾遍历一遍，last_char总是该字符最后一次出现在串中的地址
