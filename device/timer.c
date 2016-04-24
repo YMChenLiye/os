@@ -16,7 +16,7 @@ static void frequency_set(	uint8_t counter_port,\
 							uint8_t counter_no,\
 							uint8_t rwl,\
 							uint8_t counter_mode,\
-							uint8_t counter_value){
+							uint16_t counter_value){
 	//往控制字寄存器端口0x43中写入控制字
 	outb(PIT_CONTROL_PORT,(uint8_t)(counter_no << 6 | rwl << 4 | counter_mode << 1));
 	//先写入counter_value的低8位
