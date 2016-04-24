@@ -3,7 +3,7 @@
 #include "stdint.h"
 
 //自定义通用函数类型，它将在很多线程函数中作为形参类型
-typedef void thread_func(void *);
+typedef void (*thread_func)(void *);
 
 //进程或线程的状态
 enum task_status{
@@ -60,11 +60,11 @@ struct thread_stack{
 
 	//线程第一次执行时，eip指向待调用的函数kernel_thread
 	//其他时候，eip是指向switch_to的返回地址
-	void (*eip)(thread_func* func,void* func_arg);
+	void (*eip)(thread_func func,void* func_arg);
 
 	//--------- 以下仅供第一次被调度上cpu时使用 --------
 	void (*unused_retaddr);		//参数unused_retaddr只为占位置充数为返回地址
-	thread_func* function;		//由kernel_thread所调用的函数名
+	thread_func function;		//由kernel_thread所调用的函数名
 	void* func_arg;				//由kernel_thread所调用的函数所需的参数
 };
 
