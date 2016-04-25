@@ -4,8 +4,8 @@
 //初始化双向链表list
 void list_init(struct list* list){
 	list->head.prev = NULL;
-	list->head.next = list->tail;
-	list->tail.prev = list->head;
+	list->head.next = &list->tail;
+	list->tail.prev = &list->head;
 	list->tail.next = NULL;
 }
 
@@ -80,7 +80,7 @@ struct list_elem* list_traversal(struct list* plist,function func,int arg){
 		}
 		elem = elem->next;
 	}
-	return NULL:
+	return NULL;
 }
 
 //返回链表长度
