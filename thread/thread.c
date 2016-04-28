@@ -6,6 +6,7 @@
 #include "interrupt.h"
 #include "print.h"
 #include "memory.h"
+#include "process.h"
 
 #define PG_SIZE 4096
 
@@ -115,6 +116,10 @@ void schedule(){
 	thread_tag = list_pop(&thread_ready_list);
 	struct task_struct* next = elem2entry(struct task_struct,general_tag,thread_tag);
 	next->status = TASK_RUNNING;
+
+	//激活任务页表等
+	process_activate(next);
+
 	switch_to(cur,next);
 }
 
