@@ -1,3 +1,7 @@
+
+-fno-stack-protector
+
+
 gcc -m32 -I lib/kernel/ -I lib/ -I kernel/  -c -o build/timer.o device/timer.c &&
 gcc -m32 -I lib/kernel/ -I lib/ -I kernel/ -c -fno-builtin -o build/main.o kernel/main.c   &&
 nasm -f elf -o build/print.o lib/kernel/print.S  &&
