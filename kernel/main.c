@@ -9,6 +9,7 @@
 #include "stdio.h"
 #include "memory.h"
 #include "fs.h"
+#include "string.h"
 
 void k_thread_a(void*);
 void k_thread_b(void*);
@@ -37,9 +38,8 @@ int main(void) {
 	read_bytes = sys_read(fd,buf,6);
 	printf("3_ read %d bytes:\n%s",read_bytes,buf);
 	
-	printf("_________________  close file1 and reopen __________\n");
-	sys_close(fd);
-	fd = sys_open("/file1",O_RDWR);
+	printf("_________________ SEEK_SET 0  __________\n");
+	sys_lseek(fd,0,SEEK_SET);
 	memset(buf,0,64);
 	read_bytes = sys_read(fd,buf,24);
 	printf("4_ read %d bytes:\n%s",read_bytes,buf);
