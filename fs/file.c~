@@ -476,7 +476,7 @@ int32_t file_read(struct file* file,void* buf,uint32_t count){
 
 			//再将间接块地址写入all_blocks
 			indirect_block_table = file->fd_inode->i_sectors[12];
-			ide_read(cur_part->my_disk,indirect_block_table,all_blocks + 12,1);	//将一级间接块表读进来写入到第13个块的位置之后
+			ide_read(cur_part->my_disk,indirect_block-_table,all_blocks + 12,1);	//将一级间接块表读进来写入到第13个块的位置之后
 		}else{
 			//第三种情况：数据在间接块中
 			ASSERT(file->fd_inode->i_sectors[12] != 0);		//确保已经分配了一级间接块表
