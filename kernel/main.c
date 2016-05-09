@@ -24,7 +24,7 @@ int main(void) {
 //	process_execute(u_prog_b, "u_prog_b");
 //	thread_start("k_thread_a", 31, k_thread_a, "argA ");
 //	thread_start("k_thread_b", 31, k_thread_b, "argB ");
-	uint32_t fd = sys_open("/file1",O_RDWR);
+/*	uint32_t fd = sys_open("/file1",O_RDWR);
 	printf("open /file1,fd:%d\n",fd);
 	char buf[64] = {0};
 	int read_bytes = sys_read(fd,buf,18);
@@ -45,7 +45,8 @@ int main(void) {
 	printf("4_ read %d bytes:\n%s",read_bytes,buf);
 
 	sys_close(fd);
-
+*/
+	printf("/file1 delete %s!\n",sys_unlink("/file1") == 0 ? "done" : "fail");
 
 	while(1);
 	return 0;
