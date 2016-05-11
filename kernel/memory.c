@@ -240,6 +240,20 @@ void* get_a_page(enum pool_flags pf,uint32_t vaddr){
 	return (void*)vaddr;
 }
 
+//安装1页大小的vaddr，专门针对fork时虚拟地址位图无须操作的情况
+void* get_a_page_without_opvaddrbitmap(enum pool_flags pf,uint32_t vaddr){
+	struct pool* mem_pool = pf & PF_KERNEL ? &kernel_pool : &user_pool;
+	lock_acquire(&mem_pool->lock);
+	void* page_phyaddr = palloc(mem_pool);
+	if(page_phyaddr == NULL){
+		lock_release(&mem_pool->lock);
+		return NULL;
+	}
+	page_table_add((void*)vaddr,page_phyaddr);
+	lock_release(&mem_pool->lock);
+	return (void*)vaddr;
+}
+
 //得到虚拟地址映射到的物理地址
 uint32_t addr_v2p(uint32_t vaddr){
 	uint32_t* pte = pte_ptr(vaddr);
@@ -247,10 +261,6 @@ uint32_t addr_v2p(uint32_t vaddr){
 	//去掉其低12位的页表项属性+虚拟地址vaddr的低12位
 	return ((*pte & 0xfffff000) + (vaddr & 0x00000fff));
 }
-
-
-
-
 
 //初始化内存池
 static void mem_pool_init(uint32_t all_mem){

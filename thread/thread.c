@@ -19,6 +19,7 @@ struct lock pid_lock;					//分配pid锁
 static struct list_elem* thread_tag;	//用于保存队列中的线程结点
 
 extern void switch_to(struct task_struct* cur,struct task_struct* next);
+extern void init(void);
 
 //系统空闲时运行的线程
 static void idle(void* arg UNUSED){
@@ -43,7 +44,6 @@ static void kernel_thread(thread_func function,void* func_arg){
 	function(func_arg);
 }
 
-
 //分配pid
 static pid_t allocate_pid(void){
 	static pid_t next_pid = 0;
@@ -53,9 +53,17 @@ static pid_t allocate_pid(void){
 	return next_pid;
 }
 
+//fork进程时为其分配pid，因为allocate_pid已经是静态的，别的文件无法调用
+//不想改变函数定义了，所以定义fork_pid函数来封装一下
+pid_t fork_pid(void){
+	return allocate_pid();
+}
+
 //初始化线程栈thread_stack，将待执行的函数和参数放到thread_stack中相应的位置
 void thread_create(struct task_struct* pthread,thread_func function,void* func_arg){
 	//先预留中断使用的栈的空间，可见thread.h中的定义的结构
+	pthread->self_kstack -= sizeof(struct intr_stack);
+
 	pthread->self_kstack -= sizeof(struct thread_stack);
 	struct thread_stack* kthread_stack = (struct thread_stack*)pthread->self_kstack;
 	kthread_stack->eip = kernel_thread;
@@ -95,6 +103,7 @@ void init_thread(struct task_struct* pthread,char* name,int prio){
 		fd_idx++;
 	}
 	pthread->cwd_inode_nr = 0;				//以根目录作为默认工作路径
+	pthread->parent_pid = -1;				//-1表示没有父进程
 	pthread->stack_magic = 0x19950910;		//自定义的魔数
 }
 
@@ -208,6 +217,10 @@ void thread_init(void){
 	list_init(&thread_ready_list);
 	list_init(&thread_all_list);
 	lock_init(&pid_lock);
+
+	//先创建第一个用户进程:init
+	process_execute(init,"init");		//放在第一个初始化，这是第一个进程init进程的pid为1
+
 	//将当前main函数创建为线程
 	make_main_thread();
 
