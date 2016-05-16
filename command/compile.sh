@@ -11,10 +11,12 @@ if [[ ! -d "../lib" || ! -d "../build" ]];then
    exit
 fi
 
-BIN="prog_arg"
+BIN="cat"
 CFLAGS="-Wall -c -fno-builtin -W -Wstrict-prototypes \
-      -Wmissing-prototypes -Wsystem-headers"
-LIBS="-I ../lib -I ../lib/user -I ../fs"
+      -Wmissing-prototypes -Wsystem-headers -fno-stack-protector"
+LIBS="-I ../lib/ -I ../lib/kernel/ -I ../lib/user/ -I \
+      ../kernel/ -I ../device/ -I ../thread/ -I \
+      ../userprog/ -I ../fs/ -I ../shell/"
 OBJS="../build/string.o ../build/syscall.o \
       ../build/stdio.o ../build/assert.o start.o"
 DD_IN=$BIN
@@ -22,21 +24,11 @@ DD_OUT="/home/cly/bochs/hd60M.img"
 
 nasm -f elf ./start.S -o ./start.o
 ar rcs simple_crt.a $OBJS start.o
-gcc $CFLAGS $LIBS -o $BIN".o" $BIN".c"
-ld $BIN".o" simple_crt.a -o $BIN
+gcc -m32 $CFLAGS $LIBS -o $BIN".o" $BIN".c"
+ld -m elf_i386 $BIN".o" simple_crt.a -o $BIN
 SEC_CNT=$(ls -l $BIN|awk '{printf("%d", ($5+511)/512)}')
 
 if [[ -f $BIN ]];then
    dd if=./$DD_IN of=$DD_OUT bs=512 \
    count=$SEC_CNT seek=300 conv=notrunc
 fi
-
-##########   以上核心就是下面这五条命令   ##########
-#nasm -f elf ./start.S -o ./start.o
-#ar rcs simple_crt.a ../build/string.o ../build/syscall.o \
- ../build/stdio.o ../build/assert.o ./start.o
-#gcc -m32 -Wall -c -fno-builtin -W -Wstrict-prototypes -Wmissing-prototypes \
--Wsystem-headers -I ../lib/ -I ../lib/user -I ../fs prog_arg.c -o prog_arg.o
-#ld -m elf_i386 prog_arg.o simple_crt.a -o prog_arg
-#dd if=prog_arg of=/home/cly/bochs/hd60M.img \
-  bs=512 count=15 seek=300 conv=notrunc
