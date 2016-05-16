@@ -40,3 +40,4 @@
 #### 第二块硬盘上我们将其格式化，实现了文件系统
 
 ![clyos](https://raw.githubusercontent.com/YMChenLiye/os/master/clyos.png)
+![code](https://raw.githubusercontent.com/YMChenLiye/os/master/code.png)
