@@ -38,3 +38,5 @@
 
 #### 系统跑在bochs虚拟机上，模拟出了两个硬盘，第一个硬盘是一个裸盘，MBR、loader、内核都是存放在这块硬盘上的
 #### 第二块硬盘上我们将其格式化，实现了文件系统
+
+![clyos](https://raw.githubusercontent.com/YMChenLiye/os/master/clyos.png)
