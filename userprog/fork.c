@@ -6,7 +6,7 @@
 #include "thread.h"
 #include "string.h"
 #include "file.h"
-#include "stdio-kernel.h"
+#include "pipe.h"
 
 extern void intr_exit(void);
 
@@ -103,7 +103,7 @@ static int32_t build_child_stack(struct task_struct* child_thread){
 	//下面这两行赋值只是为了使构建的thread_stack更加清晰，其实也不需要
 	//因为在进入intr_exit后，一系列的pop会把寄存器中的数据覆盖
 	*ebp_ptr_in_thread_stack = *ebx_ptr_in_thread_stack = \
-	*edi_ptr_in_thread_stack = *esi_ptr_in_thread_stack = 0;
+							   *edi_ptr_in_thread_stack = *esi_ptr_in_thread_stack = 0;
 	//-----------------------------------------------------------------
 
 	//把构建的thread_stack的栈顶作为switch_to恢复数据时的栈顶
@@ -118,7 +118,11 @@ static void update_inode_open_cnts(struct task_struct* thread){
 		global_fd = thread->fd_table[local_fd];
 		ASSERT(global_fd < MAX_FILE_OPEN);
 		if(global_fd != -1){
-			file_table[global_fd].fd_inode->i_open_cnts++;
+			if(is_pipe(local_fd)){
+				file_table[global_fd].fd_pos++;
+			}else{
+				file_table[global_fd].fd_inode->i_open_cnts++;
+			}
 		}
 		local_fd++;
 	}
